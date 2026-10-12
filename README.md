@@ -19,7 +19,7 @@ Both skills are needed. User-level install, so they work in every directory on t
 
 ```bash
 git clone https://github.com/danyuchn/asd-ste100-skill ~/.claude/skills/asd-ste100
-git clone https://github.com/<you>/teaching-technical-topics-skill ~/.claude/skills/teaching-technical-topics
+git clone https://github.com/akshaymemane/asd-ste100-teach-skill ~/.claude/skills/teaching-technical-topics
 ```
 
 Optional slash command:
