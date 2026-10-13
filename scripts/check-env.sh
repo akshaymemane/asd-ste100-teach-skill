@@ -38,6 +38,14 @@ else
 fi
 if command -v ffmpeg >/dev/null; then ok ffmpeg "$(ffmpeg -version 2>&1 | head -1 | cut -d' ' -f1-3)"; else miss ffmpeg "brew install ffmpeg"; video_blocked=1; fi
 
+echo "narration (optional)"
+if command -v say >/dev/null; then
+  ok "say (macOS TTS)" "$(say -v '?' 2>/dev/null | wc -l | tr -d ' ') voices"
+  printf '            render with: NARRATE=1 manim -qm 04-video/animation.py <SceneName>\n'
+else
+  printf '  ABSENT  say — narration unavailable, ship the subtitles-only cut\n'
+fi
+
 echo
 if [ "$video_blocked" -eq 1 ]; then
   echo "Video stage blocked. Either run the install command above, or take the"

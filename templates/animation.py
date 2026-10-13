@@ -12,6 +12,11 @@ Replace TOPIC, the beat list, and the body of each beat. Keep the subtitle
 mechanism: every beat states one idea in Simplified Technical English.
 """
 
+import json
+import os
+import subprocess
+from pathlib import Path
+
 from manim import (
     Arrow,
     Create,
@@ -21,6 +26,7 @@ from manim import (
     Scene,
     Text,
     VGroup,
+    Wait,
     Write,
     BLUE,
     DOWN,
@@ -49,6 +55,19 @@ SHORT = CUT == "short"
 PACE = 0.6 if SHORT else 2.5      # multiplies every pause
 RUN = 0.55 if SHORT else 1.0      # multiplies every animation run_time
 
+# Narration. Render with NARRATE=1 and each caption speaks itself: the scene
+# synthesizes a clip, holds the caption for as long as the clip runs, and
+# records when it appeared. Afterwards attach the track:
+#   NARRATE=1 manim -qm animation.py LearningPack
+#   python3 ~/.claude/skills/teaching-technical-topics/scripts/narrate.py mux \
+#       --video media/videos/animation/720p30/explanation.mp4 \
+#       --timeline narration/timeline.json --out explanation.mp4
+NARRATE = os.environ.get("NARRATE", "0") == "1"
+VOICE = os.environ.get("NARRATE_VOICE", "Samantha")
+RATE = int(os.environ.get("NARRATE_RATE", "170"))
+NARRATION_DIR = Path("narration")
+CLIP_TAIL = 0.45                  # breath after a line before the next beat
+
 
 class Subtitles:
     """One persistent subtitle line at the bottom of the frame."""
@@ -56,6 +75,23 @@ class Subtitles:
     def __init__(self, scene: Scene):
         self.scene = scene
         self.current: Text | None = None
+        self.clips: list[dict] = []
+        if NARRATE:
+            NARRATION_DIR.mkdir(exist_ok=True)
+
+    def _speak(self, line: str) -> float:
+        """Synthesize one caption. Returns how long the clip runs."""
+        path = NARRATION_DIR / f"{len(self.clips):03d}.aiff"
+        subprocess.run(["say", "-v", VOICE, "-r", str(RATE), "-o", str(path), line],
+                       check=True)
+        out = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "csv=p=0", str(path)], capture_output=True, text=True, check=True)
+        secs = float(out.stdout.strip() or 0.0)
+        # The caption appears when the fade finishes, which is now.
+        self.clips.append({"path": str(path), "start": float(self.scene.renderer.time),
+                           "line": line, "duration": secs})
+        return secs
 
     def say(self, line: str, hold: float = 2.5) -> None:
         new = Text(line, font_size=SUBTITLE_SIZE, color=GREY_B).to_edge(DOWN, buff=0.4)
@@ -64,10 +100,23 @@ class Subtitles:
         else:
             self.scene.play(FadeOut(self.current, run_time=0.2), FadeIn(new, run_time=0.4))
         self.current = new
-        # A caption with no narration must stay up long enough to read: about
-        # 3.3 words per second, plus a moment to move the eye back to the plot.
+
+        if NARRATE:
+            # Speech sets the pace: hold the line until the voice finishes it.
+            self.scene.wait(self._speak(line) + CLIP_TAIL)
+            return
+
+        # A silent caption must stay up long enough to read: about 3.3 words
+        # per second, plus a moment to move the eye back to the plot.
         read_floor = len(line.split()) / 3.3 + 0.7
         self.scene.wait(max(hold * PACE, read_floor))
+
+    def dump(self) -> None:
+        """Write the timeline narrate.py needs. Call it at the end of construct."""
+        if not NARRATE:
+            return
+        (NARRATION_DIR / "timeline.json").write_text(
+            json.dumps({"voice": VOICE, "rate": RATE, "clips": self.clips}, indent=2))
 
     def clear(self) -> None:
         if self.current is not None:
@@ -84,11 +133,17 @@ class LearningPack(Scene):
     """Beats: problem, naive attempt, break, mechanism, normal path, failure, recovery, trade-offs."""
 
     def play(self, *animations, **kwargs):
-        """Scale every animation by RUN so one knob sets the whole cut's tempo."""
+        """Scale every animation by RUN so one knob sets the whole cut's tempo.
+
+        Wait is exempt: Scene.wait() routes through play(), and scaling it would
+        quietly shrink every caption hold below its read floor.
+        """
         for anim in animations:
+            if isinstance(anim, Wait):
+                continue
             if hasattr(anim, "run_time"):
                 anim.run_time = anim.run_time * RUN
-        if "run_time" in kwargs:
+        if "run_time" in kwargs and not any(isinstance(a, Wait) for a in animations):
             kwargs["run_time"] = kwargs["run_time"] * RUN
         super().play(*animations, **kwargs)
 
@@ -99,6 +154,7 @@ class LearningPack(Scene):
         self.mechanism()
         self.failure_and_recovery()
         self.tradeoffs()
+        self.sub.dump()
 
     def title_card(self) -> None:
         title = Text(TOPIC, font_size=54, color=WHITE)

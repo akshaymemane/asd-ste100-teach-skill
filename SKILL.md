@@ -72,7 +72,7 @@ The per-file content contract is in `references/output-contract.md` — read it 
 2. **No accuracy loss for simplicity.** Flat language, exact mechanics. If a simplification would mislead, keep the detail and define the term.
 3. **Always teach trade-offs and failure modes.** A format that only shows the happy path is incomplete.
 4. **Interactive means interactive.** An animated article is a failed `03-interactive/`. State changes must come from user input.
-5. **Pace the video for how it is received.** Subtitles with no audio need read time, not speech time. A silent 6-minute cut of a 1-minute argument is a defect. See the read-floor rule in the contract.
+5. **Pace the video for how it is received.** Subtitles with no audio need read time, not speech time. A silent 6-minute cut of a 1-minute argument is a defect. Narration (`NARRATE=1`) flips this: speech sets every hold. See the read-floor rule in the contract.
 6. **Test what you ship.** Open the page and read the console; render the video. Report every untested or ungenerated output explicitly.
 7. **Examples live in Java, SQL, and distributed-systems terms** where the topic allows.
 
@@ -88,4 +88,5 @@ The per-file content contract is in `references/output-contract.md` — read it 
 
 - `references/output-contract.md` — per-file content and verification contract.
 - `references/prompt-template.md` — the one-shot prompt form of this workflow, for reuse outside a skill-aware harness.
-- `templates/animation.py` — manim starter scene with narration/subtitle pattern.
+- `templates/animation.py` — manim starter scene with the subtitle, pacing, and narration machinery.
+- `scripts/narrate.py` — speaks each caption and muxes the track onto the render (macOS `say`).

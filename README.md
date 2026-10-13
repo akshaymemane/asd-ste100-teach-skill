@@ -29,6 +29,8 @@ mkdir -p ~/.claude/commands
 cp ~/.claude/skills/teaching-technical-topics/teach.md ~/.claude/commands/teach.md
 ```
 
+Optional narration (macOS): `NARRATE=1` makes every caption speak itself, then `scripts/narrate.py mux` attaches the track in sync.
+
 Check the toolchain:
 
 ```bash

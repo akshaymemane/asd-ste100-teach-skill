@@ -92,7 +92,11 @@ Zero errors required. Report any check you could not run.
 | The video has | Each beat lasts | Typical total |
 |---|---|---|
 | Subtitles only, no audio | long enough to READ the line | 60–120 s |
-| Narration audio | long enough to SPEAK the line | 4–10 min |
+| Narration audio | long enough to SPEAK the line | the same script, 20–40% longer |
+
+Speech runs near 3 words per second and reading near 3.3, so a narrated cut of
+the same script lands a little above the silent one. A narrated video measured
+in many minutes means the script is long, not that narration costs minutes.
 
 A silent video paced for speech feels broken, because the viewer finished reading
 six seconds ago and is watching a still frame. Compute the floor instead of
@@ -104,6 +108,33 @@ them below the read floor — that trades comprehension for a number.
 
 Default to the short cut. Offer the long one when the topic has more sub-steps
 than a single pass can carry. The template exposes this as `CUT = "short"`.
+
+**Narration (optional, macOS).** Ask before adding it — a synthetic voice suits
+some packs and grates in others. With `NARRATE=1` each caption speaks itself:
+the scene synthesizes the line, holds the caption for exactly as long as the
+clip runs, and records the second it appeared. Speech then sets the pace and the
+read floor stops applying.
+
+```bash
+NARRATE=1 manim -qm 04-video/animation.py <SceneName>
+python3 ~/.claude/skills/teaching-technical-topics/scripts/narrate.py mux \
+    --video 04-video/media/videos/animation/720p30/explanation.mp4 \
+    --timeline 04-video/narration/timeline.json --out 04-video/explanation.mp4
+```
+
+`NARRATE_VOICE` and `NARRATE_RATE` pick the voice and words per minute
+(`narrate.py voices` lists them). Verify the sync rather than trusting it:
+
+```bash
+ffmpeg -hide_banner -i 04-video/explanation.mp4 -af silencedetect=noise=-40dB:d=0.5 \
+    -f null - 2>&1 | grep silence_end
+```
+
+Each `silence_end` must match a `start` in `timeline.json`. A drift means the
+caption and the voice disagree, which is worse than no narration at all.
+
+Narration makes the video longer than the silent cut, and that is correct:
+speech is slower than reading. Do not then trim the pauses to claw the time back.
 
 Narrative shape: problem → naive approach → why it breaks → the mechanism → normal operation walked through on the core example → failure scenario → recovery → trade-off summary.
 
