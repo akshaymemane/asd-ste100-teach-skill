@@ -64,7 +64,7 @@ The per-file content contract is in `references/output-contract.md` — read it 
 | `01-explanation.md` | STE prose, every term defined before use, fundamentals → complexity, why it exists, trade-offs, common mistakes, 5 test questions | `ste-lint.py` hard violations = 0 (or justified) |
 | `02-diagrams.md` | Mermaid: architecture, data flow, algorithm steps, sequence for distributed ops, failure/recovery, alternative comparison. Short prose under each | Every block parses (see contract for the check) |
 | `03-interactive/index.html` | Real simulation: sliders, play/pause/reset/step, failure injection, tooltips, knowledge checks | Opens with zero console errors |
-| `04-video/` | Manim source + rendered MP4, 5–10 min, narrated or subtitled | MP4 exists with non-zero duration, or the gap is reported |
+| `04-video/` | Manim source + rendered MP4. Length follows the content: subtitles-only runs 60–120 s, narrated runs minutes | MP4 exists with non-zero duration, or the gap is reported |
 
 ## Hard rules
 
@@ -72,8 +72,9 @@ The per-file content contract is in `references/output-contract.md` — read it 
 2. **No accuracy loss for simplicity.** Flat language, exact mechanics. If a simplification would mislead, keep the detail and define the term.
 3. **Always teach trade-offs and failure modes.** A format that only shows the happy path is incomplete.
 4. **Interactive means interactive.** An animated article is a failed `03-interactive/`. State changes must come from user input.
-5. **Test what you ship.** Open the page and read the console; render the video. Report every untested or ungenerated output explicitly.
-6. **Examples live in Java, SQL, and distributed-systems terms** where the topic allows.
+5. **Pace the video for how it is received.** Subtitles with no audio need read time, not speech time. A silent 6-minute cut of a 1-minute argument is a defect. See the read-floor rule in the contract.
+6. **Test what you ship.** Open the page and read the console; render the video. Report every untested or ungenerated output explicitly.
+7. **Examples live in Java, SQL, and distributed-systems terms** where the topic allows.
 
 ## Red flags — stop and fix
 

@@ -84,8 +84,26 @@ Zero errors required. Report any check you could not run.
 ## 4. `04-video/`
 
 - `animation.py` — manim scenes. Start from `templates/animation.py`.
-- `explanation.mp4` — rendered, 5–10 minutes, longer only when the topic needs it.
+- `explanation.mp4` — rendered. **Length follows the content, never a target.**
 - Assets (audio, SVG, data) in the same directory.
+
+**Pace it for how the viewer receives it, not for a duration.**
+
+| The video has | Each beat lasts | Typical total |
+|---|---|---|
+| Subtitles only, no audio | long enough to READ the line | 60–120 s |
+| Narration audio | long enough to SPEAK the line | 4–10 min |
+
+A silent video paced for speech feels broken, because the viewer finished reading
+six seconds ago and is watching a still frame. Compute the floor instead of
+guessing: `seconds = words / 3.3 + 0.7`. Hold each caption for at least that,
+and let the total land where it lands.
+
+When the total runs long, cut captions and shorten their wording. Do not speed
+them below the read floor — that trades comprehension for a number.
+
+Default to the short cut. Offer the long one when the topic has more sub-steps
+than a single pass can carry. The template exposes this as `CUT = "short"`.
 
 Narrative shape: problem → naive approach → why it breaks → the mechanism → normal operation walked through on the core example → failure scenario → recovery → trade-off summary.
 

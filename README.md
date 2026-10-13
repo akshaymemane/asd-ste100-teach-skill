@@ -7,7 +7,7 @@ A Claude Code skill that turns one technical topic — a book chapter, a paper, 
 | `01-explanation.md` | Simplified Technical English explanation: terms defined before use, trade-offs, common mistakes, five test questions |
 | `02-diagrams.md` | Mermaid architecture, data flow, algorithm, sequence, failure/recovery, and alternatives diagrams |
 | `03-interactive/index.html` | Standalone simulation: parameter sliders, play/pause/reset/step, failure injection, tooltips, knowledge checks |
-| `04-video/` | Manim source plus a rendered 5–10 minute MP4 |
+| `04-video/` | Manim source plus a rendered MP4. Length follows the content — a subtitles-only cut runs 60–120 s |
 
 This skill extends [danyuchn/asd-ste100-skill](https://github.com/danyuchn/asd-ste100-skill), which owns the controlled-language rules. This one owns the learning-pack workflow and delegates every line of prose to it.
 

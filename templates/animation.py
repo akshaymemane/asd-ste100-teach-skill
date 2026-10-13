@@ -2,7 +2,11 @@
 
 Render:
     manim -ql animation.py LearningPack     # draft
-    manim -qh animation.py LearningPack     # final
+    manim -qm animation.py LearningPack     # 720p keeper
+    manim -qh animation.py LearningPack     # 1080p final
+
+Check the length with:
+    ffprobe -v error -show_entries format=duration -of csv=p=0 explanation.mp4
 
 Replace TOPIC, the beat list, and the body of each beat. Keep the subtitle
 mechanism: every beat states one idea in Simplified Technical English.
@@ -34,6 +38,17 @@ TOPIC = "TOPIC"
 SUBTITLE_SIZE = 26
 config.output_file = "explanation"
 
+# This template carries subtitles and no narration audio, so each pause only
+# has to last long enough to READ the line, not to speak it. CUT picks length:
+#   "short" — the whole argument at reading pace, usually 60-120 seconds
+#   "full"  — every sub-step shown, for a slower study pass
+# Never stretch a silent cut to speaking pace. Cut captions instead.
+CUT = "short"
+SHORT = CUT == "short"
+
+PACE = 0.6 if SHORT else 2.5      # multiplies every pause
+RUN = 0.55 if SHORT else 1.0      # multiplies every animation run_time
+
 
 class Subtitles:
     """One persistent subtitle line at the bottom of the frame."""
@@ -49,7 +64,10 @@ class Subtitles:
         else:
             self.scene.play(FadeOut(self.current, run_time=0.2), FadeIn(new, run_time=0.4))
         self.current = new
-        self.scene.wait(hold)
+        # A caption with no narration must stay up long enough to read: about
+        # 3.3 words per second, plus a moment to move the eye back to the plot.
+        read_floor = len(line.split()) / 3.3 + 0.7
+        self.scene.wait(max(hold * PACE, read_floor))
 
     def clear(self) -> None:
         if self.current is not None:
@@ -64,6 +82,15 @@ def node(label: str, color=BLUE) -> VGroup:
 
 class LearningPack(Scene):
     """Beats: problem, naive attempt, break, mechanism, normal path, failure, recovery, trade-offs."""
+
+    def play(self, *animations, **kwargs):
+        """Scale every animation by RUN so one knob sets the whole cut's tempo."""
+        for anim in animations:
+            if hasattr(anim, "run_time"):
+                anim.run_time = anim.run_time * RUN
+        if "run_time" in kwargs:
+            kwargs["run_time"] = kwargs["run_time"] * RUN
+        super().play(*animations, **kwargs)
 
     def construct(self) -> None:
         self.sub = Subtitles(self)

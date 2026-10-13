@@ -32,7 +32,7 @@ topic-name/
 
 **3. `03-interactive/index.html` — interactive learning page.** Standalone HTML, CSS, and JavaScript. Modern, responsive. Sliders and controls that change system parameters. Play, pause, reset, and step-by-step execution. Simulations of normal and failure scenarios. Tooltips for terminology. Live visualization of component interaction. Knowledge checks. Genuinely interactive, not a static article with animations. SVG, Canvas, or a suitable library.
 
-**4. `04-video/` — animated explainer.** Manim (Python) or an equivalent framework. Structured visual narrative. Animate components, data flows, and algorithms. Show normal operation and failure. Clear labels, transitions, and examples. Narration or subtitles for each important step. 5–10 minutes. Render an MP4, not a storyboard.
+**4. `04-video/` — animated explainer.** Manim (Python) or an equivalent framework. Structured visual narrative. Animate components, data flows, and algorithms. Show normal operation and failure. Clear labels, transitions, and examples. Narration or subtitles for each important step. Let the length follow the content: with subtitles and no audio, hold each line only long enough to read it, which usually lands between 60 and 120 seconds. Render an MP4, not a storyboard.
 
 **Learning principles**
 
