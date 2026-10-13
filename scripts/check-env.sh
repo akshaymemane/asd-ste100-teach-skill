@@ -18,12 +18,22 @@ if command -v npx >/dev/null; then ok "npx (mermaid check)" "$(npx --version 2>/
 
 echo
 echo "video"
+MANIM=""
 if command -v manim >/dev/null; then
-  ok manim "$(manim --version 2>&1 | head -1)"
+  MANIM=$(command -v manim)
 elif python3 -c "import manim" 2>/dev/null; then
-  ok "manim (module)" "python3 -m manim"
+  MANIM="python3 -m manim"
 else
-  miss manim "brew install cairo pango pkg-config && pip3 install manim"
+  # manim is commonly installed into a virtualenv rather than onto PATH.
+  for cand in "$HOME"/.venvs/*/bin/manim "$HOME"/venv*/bin/manim ./venv/bin/manim ./.venv/bin/manim; do
+    [ -x "$cand" ] && MANIM="$cand" && break
+  done
+fi
+if [ -n "$MANIM" ]; then
+  ok manim "$MANIM"
+  printf '            render with: %s -qm 04-video/animation.py <SceneName>\n' "$MANIM"
+else
+  miss manim "brew install cairo pango pkg-config && python3 -m venv ~/.venvs/manim && ~/.venvs/manim/bin/pip install manim"
   video_blocked=1
 fi
 if command -v ffmpeg >/dev/null; then ok ffmpeg "$(ffmpeg -version 2>&1 | head -1 | cut -d' ' -f1-3)"; else miss ffmpeg "brew install ffmpeg"; video_blocked=1; fi
